@@ -5,7 +5,8 @@
             Board Lists:
             <div v-if="loading">Loading...</div>
             <div v-else><!-- when loading completed -->
-                API result: {{apiRes}}
+                API result: <pre>{{apiRes}}</pre>
+                <div v-if="error"><pre>{{error}}</pre></div>
             </div>
             <ul>
                 <li>
@@ -20,11 +21,14 @@
 </template>
 
 <script>
+import axios from "axios"
+
 export default {
     data() {
         return {
             loading: false,
-            apiRes: ''
+            apiRes: '',
+            error: ''
         }
     },
     created() {
@@ -33,6 +37,18 @@ export default {
     methods: {
         fetchData() {
             this.loading = true
+
+            // promise 를 반환
+            axios.get('http://localhost:3000/health')
+             .then(res => {
+                 this.apiRes = res.data
+             })
+             .catch(res => {
+                 this.error = res.response.data
+             })
+             .finally(() => {
+                 this.loading = false
+             })
 
             // request 객체
             const req = new XMLHttpRequest()
