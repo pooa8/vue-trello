@@ -45,15 +45,14 @@ export default {
     onSubmit() {
         auth.login(this.email, this.password)
          .then(data => {
-             // token 발급 시 local storage 에 toekn 정보 저장
+             // token 발급 시 local storage 에 token 정보 저장
              localStorage.setItem('token', data.accessToken)
              setAuthInHeader(data.accessToken)
              this.$router.push(this.rPath)
              console.log(data)
          })
          .catch(err => {
-             console.log(err)
-             //this.error = err.data.error
+            this.error = err.data.error
          })
     }
   }
