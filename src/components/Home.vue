@@ -23,6 +23,7 @@
 <script>
 import {board} from '../api'
 import AddBoard from './AddBoard.vue'
+
 export default {
     components: {
       AddBoard

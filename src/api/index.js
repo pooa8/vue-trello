@@ -34,7 +34,7 @@ export const board = {
     fetch() {
         return request('get', '/boards')
     },
-    created(title) {
+    create(title) {
         return request('post', '/boards', {title})
     }
 }
