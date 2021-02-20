@@ -39,21 +39,21 @@ export default {
     }
   },
   created() {
-      this.rPath = this.$route.query.rPath || '/'
+    this.rPath = this.$route.query.rPath || '/'
   },
   methods: {
     onSubmit() {
-        auth.login(this.email, this.password)
-         .then(data => {
-             // token 발급 시 local storage 에 token 정보 저장
-             localStorage.setItem('token', data.accessToken)
-             setAuthInHeader(data.accessToken)
-             this.$router.push(this.rPath)
-             console.log(data)
-         })
-         .catch(err => {
-            this.error = err.data.error
-         })
+      auth.login(this.email, this.password)
+        .then(data => {
+            // token 발급 시 local storage 에 token 정보 저장
+            localStorage.setItem('token', data.accessToken)
+            setAuthInHeader(data.accessToken)
+            this.$router.push(this.rPath)
+            console.log(data)
+        })
+        .catch(err => {
+          this.error = err.data.error
+        })
     }
   }
 }
