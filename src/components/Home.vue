@@ -64,10 +64,8 @@ export default {
               this.loading = false
             })
         },
-        onAddBoard(title) {
-          // api 호출
-          board.create(title)
-            .then(data => this.fetchData())
+        onAddBoard() {
+          this.fetchData()
         }
     }
 }
