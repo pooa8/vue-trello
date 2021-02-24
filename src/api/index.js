@@ -26,10 +26,6 @@ export const setAuthInHeader = token => {
     axios.defaults.headers.common['Authorization'] = token ? `Bearer ${token}` : null;
 }
 
-// 브라우저 새로고침에도 token 정보 유지
-const {token} = localStorage
-if (token) setAuthInHeader(token)
-
 export const board = {
     fetch() {
         return request('get', '/boards')

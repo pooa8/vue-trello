@@ -23,7 +23,7 @@
 <script>
 import {board} from '../api'
 import AddBoard from './AddBoard.vue'
-import {mapMutations, mapState} from 'vuex'
+import {mapState, mapMutations, mapActions} from 'vuex'
 
 export default {
     components: {
@@ -32,14 +32,14 @@ export default {
     data() {
       return {
           loading: false,
-          boards: [],
           eror: ''
       }
     },
     computed: {
-      ...mapState([
-      'isAddBoard'
-      ])
+      ...mapState({
+        isAddBoard: 'isAddBoard',
+        boards: 'boards'
+      })
     },
     created() {
       this.fetchData() // 데이터 가져옴
@@ -54,13 +54,12 @@ export default {
         ...mapMutations([
           'SET_IS_ADD_BOARD'
         ]),
+        ...mapActions([
+          'FETCH_BOARDS'
+        ]),
         fetchData() {
           this.loading = true
-          board.fetch()
-            .then(data => {
-                this.boards = data.list
-            })
-            .finally(_ => {
+          this.FETCH_BOARDS().finally(_ => {
               this.loading = false
             })
         },
