@@ -48,12 +48,13 @@ export default {
       'SET_IS_ADD_BOARD'
     ]),
     ...mapActions([
-      'ADD_BOARD'
+      'ADD_BOARD',
+      'FETCH_BOARDS'
     ]),
     addBoard() { // After enter or submit 
       this.SET_IS_ADD_BOARD(false)
-      this.$emit('submit')
       this.ADD_BOARD({title: this.input})
+        .then(({id}) => this.$router.push(`/b/${id}`))
     }
   }
 }
