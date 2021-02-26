@@ -2,7 +2,7 @@
   <div id="app">
     <Navbar />
     <!-- 라우팅에 따라 컴포넌트가 대체되는 부분 -->
-    <router-view></router-view>
+    <router-view class="container"></router-view>
   </div>
 </template>
 
