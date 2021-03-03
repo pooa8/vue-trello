@@ -1,9 +1,9 @@
 <template>
-  <div class="list">
+  <div class="list" :data-list-id="data.id">
     <div class="list-header">
       <div class="list-header-title">{{data.title}}</div>
     </div>
-    <div class="card-lis">
+    <div class="card-list">
       <cardItem v-for="card in data.cards" :key="card.id" :data="card" />
     </div>
     <div v-if="isAddCard">
