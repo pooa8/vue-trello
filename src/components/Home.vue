@@ -43,6 +43,7 @@ export default {
     },
     created() {
       this.fetchData() // 데이터 가져옴
+      this.SET_THEME()
     },
     updated() {
       // board item 을 가져와서 bgcolor setting
@@ -52,7 +53,8 @@ export default {
     },
     methods: {
         ...mapMutations([
-          'SET_IS_ADD_BOARD'
+          'SET_IS_ADD_BOARD',
+          'SET_THEME'
         ]),
         ...mapActions([
           'FETCH_BOARDS'
