@@ -1,24 +1,26 @@
 <template>
-    <div>
-        <div class="board-wrapper">
-            <div class="board">
-                <div class="board-header">
-                    <span class="board-title">{{board.title}}</span>
-                    <a class="board-header-btn show-menu" href="" @click.prevent="onShowSettings">
-                      ... Show Menu</a>
-                </div>
-                <div class="list-section-wrapper">
-                  <div class="list-section">
-                    <div class="list-wrapper" v-for="list in board.lists" :key="list.pos">
-                      <list :data="list" />
-                    </div>
-                  </div>
-                </div>
-            </div>
+  <div>
+    <div class="board-wrapper">
+      <div class="board">
+        <div class="board-header">
+          <input class="form-control" v-if="isEditTitle" type="text" v-model="inputTitle" 
+            ref="inputTitle" @blur="onSubmitTitle" @keyup.enter="onSubmitTitle">
+          <span v-else class="board-title" @click="onClickTitle">{{board.title}}</span>
+          <a class="board-header-btn show-menu" href="" @click.prevent="onShowSettings">
+            ... Show Menu</a>
         </div>
-        <BoardSettings v-if="isShowBoardSettings"/>
-        <router-view></router-view>
+        <div class="list-section-wrapper">
+          <div class="list-section">
+            <div class="list-wrapper" v-for="list in board.lists" :key="list.pos">
+              <list :data="list" />
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+    <BoardSettings v-if="isShowBoardSettings"/>
+    <router-view></router-view>
+  </div>
 </template>
 
 <script>
@@ -28,63 +30,83 @@ import BoardSettings from './BoardSettings.vue'
 import dragger from '../utils/dragger'
 
 export default {
-    components: { List, BoardSettings },
-    data() {
-        return {
-            bid: 0,
-            loading: false,
-            cDragger: null
-        }
+  components: { List, BoardSettings },
+  data() {
+    return {
+      bid: 0,
+      loading: false,
+      cDragger: null,
+      isEditTitle: false,
+      inputTitle: ''
+    }
+  },
+  computed: {
+      ...mapState({
+          board: 'board',
+          isShowBoardSettings: 'isShowBoardSettings'
+      })
+  },
+  created() {
+      this.fetchData().then(() => {
+        this.inputTitle = this.board.title
+        this.SET_THEME(this.board.bgColor)
+      })
+      this.SET_IS_SHOW_BOARD_SETTINGS(false)
+  },
+  updated() {
+    this.setCardDraggable() // Board 의 자식 컴포넌트가 모두 렌더링 된 후 호출
+  },
+  methods: {
+    ...mapMutations([
+      'SET_THEME',
+      'SET_IS_SHOW_BOARD_SETTINGS'
+    ]),
+    ...mapActions([
+      'FETCH_BOARD',
+      'UPDATE_CARD',
+      'UPDATE_BOARD'
+    ]),
+    fetchData() { // 백엔드 API를 호출하고, 데이터를 요청하는 함수
+      this.loading = true
+      return this.FETCH_BOARD({id: this.$route.params.bid})
+        .then(() => this.loading = false)
     },
-    computed: {
-        ...mapState({
-            board: 'board',
-            isShowBoardSettings: 'isShowBoardSettings'
-        })
+    onClickTitle() {
+      this.isEditTitle = true
+      this.$nextTick(() => this.$refs.inputTitle.focus())
     },
-    created() {
-        this.fetchData().then(() => {
-          this.SET_THEME(this.board.bgColor)
-        })
-        this.SET_IS_SHOW_BOARD_SETTINGS(false)
-    },
-    updated() {
-      this.setCardDraggable() // Board 의 자식 컴포넌트가 모두 렌더링 된 후 호출
-    },
-    methods: {
-      ...mapMutations([
-        'SET_THEME',
-        'SET_IS_SHOW_BOARD_SETTINGS'
-      ]),
-      ...mapActions([
-          'FETCH_BOARD',
-          'UPDATE_CARD'
-      ]),
-      fetchData() { // 백엔드 API를 호출하고, 데이터를 요청하는 함수
-          this.loading = true
-          return this.FETCH_BOARD({id: this.$route.params.bid})
-            .then(() => this.loading = false)
-      },
-      setCardDraggable() {
-        if(this.cDragger) this.cDragger.destroy()
-        this.cDragger = dragger.init(Array.from(this.$el.querySelectorAll('.card-list')))
-        this.cDragger.on('drop', (el, wrapper, target, silblings) => {
-          const targetCard = {
-            id: el.dataset.cardId * 1, 
-            pos: 65535,
-          }
-          const {prev, next} = dragger.silblings({
-            el,
-            wrapper,
-            candidate: Array.from(wrapper.querySelectorAll('.card-item')),
-            type: 'card'
-          })
+    onSubmitTitle() {
+      this.isEditTitle = false
 
-          if (!prev && next) targetCard.pos = next.pos / 2
-          else if (!next && prev) targetCard.pos = prev.pos * 2
-          else if (next && prev) targetCard.pos = (prev.pos + next.pos) / 2
-  
-          this.UPDATE_CARD(targetCard)
+      this.inputTitle = this.inputTitle.trim()
+      if (!this.inputTitle) return
+
+      const id = this.board.id
+      const title = this.inputTitle
+      if (title === this.board.title) return
+
+      this.UPDATE_BOARD({id, title})
+    },
+    setCardDraggable() {
+      if(this.cDragger) this.cDragger.destroy()
+      this.cDragger = dragger.init(Array.from(this.$el.querySelectorAll('.card-list')))
+      this.cDragger.on('drop', (el, wrapper, target, silblings) => {
+        const targetCard = {
+          id: el.dataset.cardId * 1, 
+          pos: 65535,
+        }
+        const {prev, next} = dragger.silblings({
+          el,
+          wrapper,
+          candidate: Array.from(wrapper.querySelectorAll('.card-item')),
+          type: 'card'
+        })
+
+        if (!prev && next) targetCard.pos = next.pos / 2
+        else if (!next && prev) targetCard.pos = prev.pos * 2
+        else if (next && prev) targetCard.pos = (prev.pos + next.pos) / 2
+
+        this.UPDATE_CARD(targetCard)
       })
     },
     onShowSettings() {
